@@ -73,7 +73,7 @@ def generate_markup_user_menu():
     markup = types.InlineKeyboardMarkup(row_width=2)
 
     markup.add(types.InlineKeyboardButton(text="📊Тарифы", callback_data="/usertarifs"))
-    markup.add(types.InlineKeyboardButton(text="Мои подписки", callback_data="/usersubs"))
+    markup.add(types.InlineKeyboardButton(text="💎Мои подписки", callback_data="/usersubs"))
 
     return markup
 
