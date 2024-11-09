@@ -8,8 +8,7 @@ from states.template.Response import Response
 import os
 
 
-#tokkey = os.environ.get('BOT_TOKEN')
-tokkey = "7624419786:AAEyMkWLA4crbMK07qYhtEYyCZU0F7Cqooc"
+tokkey = os.environ.get('BOT_TOKEN')
 
 bot = AsyncTeleBot(tokkey)
 
@@ -18,7 +17,7 @@ state_list = {}
 
 @bot.message_handler(commands=['off'])
 async def off(message):
-    await bot.send_message(chat_id=message.chat.id, text="Вимикаю...")
+    await bot.send_message(chat_id=message.chat.id, text="Выключаю...")
     sys.exit()
 
 @bot.message_handler(commands=['del_log'])
@@ -176,7 +175,6 @@ tarifs_controller = TarifsController()
 
 @bot.chat_join_request_handler()
 async def join_request_handler(join_request: types.ChatJoinRequest):
-    print("PRoverka")
     user_id = join_request.from_user.id  # ID пользователя, запрашивающего доступ
     chat_id = join_request.chat.id       # ID группы или канала
 
@@ -196,14 +194,13 @@ async def join_request_handler(join_request: types.ChatJoinRequest):
             tarif = (await tarifs_controller.get_by(id=sub.tarif_id))[0]
             if tarif.group_id == str(chat_id):
                 await bot.approve_chat_join_request(chat_id, user_id)
-                print(f"Запрос на вступление от пользователя {user_id} одобрен.")
                 return
         except:
             errors += 1
 
     if errors > 0:
         await bot.approve_chat_join_request(chat_id, user_id)
-        print(f"Запрос на вступление от пользователя {user_id} одобрен.")
+        return
     await bot.decline_chat_join_request(chat_id, user_id)
 
 import asyncio
@@ -222,7 +219,7 @@ async def check_subscriptions():
                         await bot.ban_chat_member(chat_id=tarif.group_id,
                                                   user_id=user_tmp.tg_id,
                                                   until_date=datetime.now() + timedelta(minutes=3))
-                        await bot.send_message(chat_id=user_tmp.tg_id, text="Ваша підписка закінчилась!")
+                        await bot.send_message(chat_id=user_tmp.tg_id, text="Ваша подписка закончилась!")
                         await sub_controller.delete(id=sub.id)
                     except:
                         pass
