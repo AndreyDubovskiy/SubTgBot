@@ -28,9 +28,10 @@ class TarifsState(UserState):
         if self.edit == "add_name":
             self.add_name = message
             self.edit = "add_description"
-            return Response(text="Введите следующим сообщением описание тарифа: ", buttons=markups.generate_cancel())
+            return Response(text="Введите следующим сообщением описание тарифа: \n"
+                                 "Чтобы выделить слова для копирования, поставьте в начале %% и в конце %%.", buttons=markups.generate_cancel())
         elif self.edit == "add_description":
-            self.add_description = message
+            self.add_description = message.replace("%%", "`")
             self.edit = "add_days"
             return Response(text="Введите срок действия тарифа у формате дд-мм, где дд - количество дней, мм - количество месяцев. Например, 15-1 (15 дней и 1 месяц): ", buttons=markups.generate_cancel())
         elif self.edit == "add_days":
@@ -44,10 +45,32 @@ class TarifsState(UserState):
                     buttons=markups.generate_cancel())
             except:
                 return Response(text="Вы ввели что-то неправильно! Попробуйте ещё раз:", buttons=markups.generate_cancel())
+        elif self.edit == "edit_name":
+            self.edit_name = message
+            self.edit = "edit_description"
+            return Response(text="Введите следующим сообщением новое описание тарифа:", buttons=markups.generate_cancel_or_save())
+        elif self.edit == "edit_description":
+            self.edit_description = message.replace("%%", "`")
+            self.edit = "edit_days"
+            return Response(text="Введите новый срок действия тарифа у формате дд-мм, где дд - количество дней, мм - количество месяцев. Например, 15-1 (15 дней и 1 месяц): ", buttons=markups.generate_cancel_or_save())
+        elif self.edit == "edit_days":
+            try:
+                message = message.replace(" ", "")
+                self.edit_days = int(message.split("-")[0])
+                self.edit_months = int(message.split("-")[1])
+                self.edit = "None"
+                self.current_tarif.name = self.edit_name
+                self.current_tarif.description = self.edit_description
+                self.current_tarif.days = self.edit_days
+                self.current_tarif.mouths = self.edit_months
+                await self.tarifs_controller.save(self.current_tarif)
+                return Response(
+                    text="Изменения сохранены!",
+                    redirect="/tarifs")
+            except:
+                return Response(text="Вы ввели что-то неправильно! Попробуйте ещё раз:", buttons=markups.generate_cancel_or_save())
         elif self.edit == "add_group":
             try:
-                print("USER CHAT ID", self.user_chat_id)
-                print("CHAT ID", str(self.message_obj.forward_from_chat.id))
                 if self.user_chat_id == str(self.message_obj.forward_from_chat.id):
                     self.add_group = message
                 else:
@@ -58,6 +81,8 @@ class TarifsState(UserState):
             self.edit = "None"
             await self.tarifs_controller.create(name=self.add_name, description=self.add_description, group_id=self.add_group, days=self.add_days, mouths=self.add_months, invite_link=(await self.get_invate_link(self.add_group)))
             return Response(text="Тариф добавлен!", redirect="/tarifs")
+        else:
+            raise Exception("Неправильная кнопка")
 
     async def get_invate_link(self, grp_id: str):
         tmp = await self.tarifs_controller.get_by(group_id=grp_id)
@@ -69,21 +94,21 @@ class TarifsState(UserState):
 
     async def next_msg_photo_and_video(self, message: types.Message):
         if self.edit == "add_group":
-            print("USER CHAT ID", self.user_chat_id)
-            print("CHAT ID", str(self.message_obj.forward_from_chat.id))
             self.add_group = str(self.message_obj.forward_from_chat.id)
             self.edit = "None"
             await self.tarifs_controller.create(name=self.add_name, description=self.add_description, group_id=self.add_group, days=self.add_days, mouths=self.add_months, invite_link=(await self.get_invate_link(self.add_group)))
             return Response(text="Тариф добавлен!", redirect="/tarifs")
+        else:
+            raise Exception("Неправильная кнопка")
 
     async def next_msg_document(self, message: types.Message):
         if self.edit == "add_group":
-            print("USER CHAT ID", self.user_chat_id)
-            print("CHAT ID", str(self.message_obj.forward_from_chat.id))
             self.add_group = str(self.message_obj.forward_from_chat.id)
             self.edit = "None"
             await self.tarifs_controller.create(name=self.add_name, description=self.add_description, group_id=self.add_group, days=self.add_days, mouths=self.add_months, invite_link=(await self.get_invate_link(self.add_group)))
             return Response(text="Тариф добавлен!", redirect="/tarifs")
+        else:
+            raise Exception("Неправильная кнопка")
 
     async def next_btn_clk(self, data_btn: str):
         if data_btn == "/cancel":
@@ -117,6 +142,34 @@ class TarifsState(UserState):
         elif data_btn == "/delete":
             await self.tarifs_controller.delete(id=self.current_tarif.id)
             return Response(text="Тариф удалено!", redirect="/tarifs")
+        elif data_btn == "/edit":
+            self.edit = "edit_name"
+            return Response(text="Введите следующим сообщением новое название тарифа: ", buttons=markups.generate_cancel_or_save())
+        elif data_btn == "/save":
+            if self.edit == "edit_name":
+                self.edit_name = self.current_tarif.name
+                self.edit = "edit_description"
+                return Response(text="Введите следующим сообщением новое описание тарифа: ", buttons=markups.generate_cancel_or_save())
+            elif self.edit == "edit_description":
+                self.edit_description = self.current_tarif.description
+                self.edit = "edit_days"
+                return Response(
+                    text="Введите новый срок действия тарифа у формате дд-мм, где дд - количество дней, мм - количество месяцев. Например, 15-1 (15 дней и 1 месяц): ",
+                    buttons=markups.generate_cancel_or_save())
+            elif self.edit == "edit_days":
+                self.edit_days = self.current_tarif.days
+                self.edit_months = self.current_tarif.mouths
+                self.edit = "None"
+                self.current_tarif.name = self.edit_name
+                self.current_tarif.description = self.edit_description
+                self.current_tarif.days = self.edit_days
+                self.current_tarif.mouths = self.edit_months
+                await self.tarifs_controller.save(self.current_tarif)
+                return Response(
+                    text="Изменения сохранены!",
+                    redirect="/tarifs")
+
+
         else:
             self.current_tarif = (await self.tarifs_controller.get_by(id=int(data_btn)))[0]
             return Response(text=f"Название: {self.current_tarif.name}\nОписание: {self.current_tarif.description}", buttons=markups.generate_payment_menu())

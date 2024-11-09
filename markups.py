@@ -110,6 +110,13 @@ def generate_markup_user_tarif():
 
 def generate_payment_menu():
     markup = types.InlineKeyboardMarkup(row_width=2)
+    markup.add(types.InlineKeyboardButton(text="📝Редактировать📝", callback_data="/edit"))
     markup.add(types.InlineKeyboardButton(text="🗑Удалить🗑", callback_data="/delete"))
+    markup.add(types.InlineKeyboardButton(text="❌Отменить❌", callback_data="/cancel"))
+    return markup
+
+def generate_cancel_or_save():
+    markup = types.InlineKeyboardMarkup(row_width=2)
+    markup.add(types.InlineKeyboardButton(text="📝Оставить как есть📝", callback_data="/save"))
     markup.add(types.InlineKeyboardButton(text="❌Отменить❌", callback_data="/cancel"))
     return markup

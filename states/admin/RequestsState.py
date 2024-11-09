@@ -58,6 +58,7 @@ class RequestsState(UserState):
 
     async def next_msg(self, message: str):
         if self.edit == "comment":
+            self.edit = "None"
             self.logger.log("NO", f"{self.current_user.tg_id} {self.current_user.username} {self.current_tarif.name} {self.current_payment.name} {message}")
             await self.bot.send_message(chat_id=self.current_user.tg_id, text=f"Запрос отклонён! ❌\n"
                                                                               f"Тариф: {self.current_tarif.name}\n"
@@ -87,6 +88,8 @@ class RequestsState(UserState):
                                  f"Тариф: {self.current_tarif.name}\n"
                                  f"Оплата: {self.current_payment.name}\n",
                                 buttons=markups.generate_markup_admin_requests())
+        else:
+            raise Exception("Неправильная кнопка")
 
     async def next_btn_clk(self, data_btn: str):
         if data_btn == "/cancel":
@@ -169,3 +172,5 @@ class RequestsState(UserState):
         elif data_btn == "/no":
             self.edit = "comment"
             return Response(text=f"Введите комментарий к отклонению:", buttons=markups.generate_cancel())
+        else:
+            raise Exception("Неправильная кнопка")

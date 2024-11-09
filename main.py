@@ -60,9 +60,25 @@ async def callback(call: types.CallbackQuery):
     text = call.data
     id_list = user_id+chat_id
     if state_list.get(id_list, None) != None:
-        state: UserState = state_list[id_list]
-        res: Response = await state.next_btn_clk(text)
-        await chek_response(chat_id, user_id, id_list, res, user_name, call.message)
+        try:
+            state: UserState = state_list[id_list]
+            res: Response = await state.next_btn_clk(text)
+            await chek_response(chat_id, user_id, id_list, res, user_name, call.message)
+        except:
+            builder = BuilderState(bot)
+            if not text.startswith("/geturl"):
+                state = builder.create_state(text, user_id, chat_id, bot, user_name, call.message)
+            else:
+                state = builder.create_state("/geturl", user_id, chat_id, bot, user_name, call.message)
+            state_list[id_list] = state
+            if not text.startswith("/geturl"):
+                state.message_obj = call.message
+                res: Response = await state.start_msg()
+                await chek_response(chat_id, user_id, id_list, res, user_name, call.message)
+            else:
+                state.message_obj = call.message
+                res: Response = await state.next_btn_clk_message(text, call.message)
+                await chek_response(chat_id, user_id, id_list, res, user_name, call.message)
     else:
         builder = BuilderState(bot)
         if not text.startswith("/geturl"):
@@ -101,10 +117,17 @@ async def comand(message: types.Message):
         res: Response = await state.start_msg()
         await chek_response(user_chat_id, user_id, id_list, res, user_name, message)
     else:
-        state: UserState = state_list[id_list]
-        state.message_obj = message
-        res: Response = await state.next_msg_photo_and_video(message)
-        await chek_response(user_chat_id, user_id, id_list, res, user_name, message)
+        try:
+            state: UserState = state_list[id_list]
+            state.message_obj = message
+            res: Response = await state.next_msg_photo_and_video(message)
+            await chek_response(user_chat_id, user_id, id_list, res, user_name, message)
+        except:
+            builder = BuilderState(bot)
+            state = builder.create_state("photo", user_id, user_chat_id, bot, user_name, message)
+            state_list[id_list] = state
+            res: Response = await state.start_msg()
+            await chek_response(user_chat_id, user_id, id_list, res, user_name, message)
 
 
 @bot.message_handler(func=lambda message: True, content_types=["document"])
@@ -119,10 +142,13 @@ async def comand(message: types.Message):
     if state_list.get(id_list, None) == None:
         return
     else:
-        state: UserState = state_list[id_list]
-        state.message_obj = message
-        res: Response = await state.next_msg_document(message)
-        await chek_response(user_chat_id, user_id, id_list, res, user_name, message)
+        try:
+            state: UserState = state_list[id_list]
+            state.message_obj = message
+            res: Response = await state.next_msg_document(message)
+            await chek_response(user_chat_id, user_id, id_list, res, user_name, message)
+        except:
+            return
 
 async def chek_response(user_chat_id, user_id, id_list, res: Response = None, user_name: str = None, message: types.Message = None):
     tmp_state = state_list.get(id_list)
@@ -159,11 +185,18 @@ async def handle_message(message: types.Message):
         res: Response = await state.start_msg()
         await chek_response(user_chat_id, user_id, id_list, res, user_name, message)
     else:
-        state: UserState = state_list[id_list]
-        print("msg", message)
-        state.message_obj = message
-        res: Response = await state.next_msg(text)
-        await chek_response(user_chat_id, user_id, id_list, res, user_name, message)
+        try:
+            state: UserState = state_list[id_list]
+            print("msg", message)
+            state.message_obj = message
+            res: Response = await state.next_msg(text)
+            await chek_response(user_chat_id, user_id, id_list, res, user_name, message)
+        except:
+            builder = BuilderState(bot)
+            state = builder.create_state(text, user_id, user_chat_id, bot, user_name, message)
+            state_list[id_list] = state
+            res: Response = await state.start_msg()
+            await chek_response(user_chat_id, user_id, id_list, res, user_name, message)
 
 from db.controllers.UsersController import UsersController
 from db.controllers.SubscriptionsController import SubscriptionsController

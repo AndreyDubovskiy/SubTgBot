@@ -91,13 +91,16 @@ class UserTarifsState(UserState):
             self.edit = "buy_tarif"
             return Response(text="Выберете способ оплаты:", buttons=markups.generate_list_payments(arr=(await self.payments_controller.get_by(limit=self.MAX_ON_PAGE, offset=self.PAGE_PAYMENT)), page=self.IS_PAGE_PAYMENT, with_add=False))
         else:
-            if self.edit == "buy_tarif":
-                self.edit = "None"
-                self.current_payment = (await self.payments_controller.get_by(id=int(data_btn)))[0]
-                return Response(text=f"Название: {self.current_payment.name}\nОписание: {self.current_payment.description}", buttons=markups.generate_markup_user_buy_or_cancel())
-            else:
-                self.current_tarif = (await self.tarifs_controller.get_by(id=int(data_btn)))[0]
-                return Response(text=f"Название: {self.current_tarif.name}\nОписание: {self.current_tarif.description}", buttons=markups.generate_markup_user_tarif())
+            try:
+                if self.edit == "buy_tarif":
+                    self.edit = "None"
+                    self.current_payment = (await self.payments_controller.get_by(id=int(data_btn)))[0]
+                    return Response(text=f"Название: {self.current_payment.name}\nОписание: {self.current_payment.description}", buttons=markups.generate_markup_user_buy_or_cancel())
+                else:
+                    self.current_tarif = (await self.tarifs_controller.get_by(id=int(data_btn)))[0]
+                    return Response(text=f"Название: {self.current_tarif.name}\nОписание: {self.current_tarif.description}", buttons=markups.generate_markup_user_tarif())
+            except:
+                raise Exception("Неправильная кнопка")
 
     async def next_msg_photo_and_video(self, message: types.Message):
         if self.edit == "add_doc_or_photo":
@@ -114,3 +117,5 @@ class UserTarifsState(UserState):
                                                       path_photo=f'post_tmp/{i.file_id}.jpg',
                                                       path_doc=None)
                 return Response(text="Запрос отослано!\n\nЧерез некоторое время его проверят и отправят результат", redirect="/usertarifs")
+        else:
+            raise Exception("Неправильная кнопка")

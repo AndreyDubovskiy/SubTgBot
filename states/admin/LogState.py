@@ -16,3 +16,5 @@ class LogState(UserState):
     async def next_btn_clk(self, data_btn: str):
         if data_btn == "/cancel":
             return None
+        else:
+            raise Exception("Неправильная кнопка")

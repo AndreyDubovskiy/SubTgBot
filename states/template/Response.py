@@ -16,15 +16,15 @@ class Response:
         if (self.text is not None) and (self.photos is not None):
             with open(self.photos[0], "rb") as file:
                 if self.buttons is not None:
-                    await bot.send_photo(user_chat_id, file, self.text, reply_markup=self.buttons)
+                    await bot.send_photo(user_chat_id, file, self.text, reply_markup=self.buttons, parse_mode="Markdown")
                 else:
-                    await bot.send_photo(user_chat_id, file, self.text)
+                    await bot.send_photo(user_chat_id, file, self.text, parse_mode="Markdown")
                 return
         if self.text is not None:
             if self.buttons is not None:
-                await bot.send_message(user_chat_id, self.text, reply_markup=self.buttons)
+                await bot.send_message(user_chat_id, self.text, reply_markup=self.buttons, parse_mode="Markdown")
             else:
-                await bot.send_message(user_chat_id, self.text)
+                await bot.send_message(user_chat_id, self.text, parse_mode="Markdown")
         if self.documents is not None:
             for document in self.documents:
                 await bot.send_document(user_chat_id, document)

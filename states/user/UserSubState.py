@@ -64,14 +64,17 @@ class UserSubState(UserState):
                             buttons=markups.generate_list_user_subs(arr=self.current_subscriptions, page=self.IS_PAGE),
                             is_end=False)
         else:
-            self.current_subscription = (await self.subscriptions_controller.get_by(id=int(data_btn)))[0]
-            current_tarif = None
             try:
-                current_tarif = (await self.tarifs_controller.get_by(id=self.current_subscription.tarif_id))[0]
-                return Response(text=f"Тариф: {current_tarif.name}\n"
-                                     f"Действует до: {self.current_subscription.date_to.day}.{self.current_subscription.date_to.month}.{self.current_subscription.date_to.year}\n",
-                                buttons=markups.generate_cancel())
+                self.current_subscription = (await self.subscriptions_controller.get_by(id=int(data_btn)))[0]
+                current_tarif = None
+                try:
+                    current_tarif = (await self.tarifs_controller.get_by(id=self.current_subscription.tarif_id))[0]
+                    return Response(text=f"Тариф: {current_tarif.name}\n"
+                                         f"Действует до: {self.current_subscription.date_to.day}.{self.current_subscription.date_to.month}.{self.current_subscription.date_to.year}\n",
+                                    buttons=markups.generate_cancel())
+                except:
+                    return Response(text=f"Тариф: Тариф было удалено\n"
+                                         f"Действует до: {self.current_subscription.date_to.day}.{self.current_subscription.date_to.month}.{self.current_subscription.date_to.year}\n",
+                                    buttons=markups.generate_cancel())
             except:
-                return Response(text=f"Тариф: Тариф было удалено\n"
-                                     f"Действует до: {self.current_subscription.date_to.day}.{self.current_subscription.date_to.month}.{self.current_subscription.date_to.year}\n",
-                                buttons=markups.generate_cancel())
+                raise Exception("Неправильная кнопка")

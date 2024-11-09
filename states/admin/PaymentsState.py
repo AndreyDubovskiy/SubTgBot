@@ -25,12 +25,27 @@ class PaymentsState(UserState):
         if self.edit == "add_name":
             self.add_name = message
             self.edit = "add_description"
-            return Response(text="Введите следующим сообщением описание к оплате, инструкцию, реквизиты, и т.д.: ", buttons=markups.generate_cancel())
+            return Response(text="Введите следующим сообщением описание к оплате, инструкцию, реквизиты, и т.д.:\n"
+                                 "Чтобы выделить слова для копирования, поставьте в начале %% и в конце %%. ", buttons=markups.generate_cancel())
         elif self.edit == "add_description":
-            self.add_description = message
+            self.add_description = message.replace("%%", "`")
             self.edit = "None"
             await self.payments_controller.create(name=self.add_name, description=self.add_description)
             return Response(text="Способ оплаты добавлен!", redirect="/payments")
+        elif self.edit == "edit_name":
+            self.edit_name = message
+            self.edit = "edit_description"
+            return Response(text="Введите следующим сообщением новое описание к оплате, инструкцию, реквизиты, и т.д.:\n"
+                                 "Чтобы выделить слова для копирования, поставьте в начале %% и в конце %%. ", buttons=markups.generate_cancel_or_save())
+        elif self.edit == "edit_description":
+            self.edit_description = message.replace("%%", "`")
+            self.edit = "None"
+            self.current_payment.description = self.edit_description
+            self.current_payment.name = self.edit_name
+            await self.payments_controller.save(self.current_payment)
+            return Response(text="Способ оплаты изменен!", redirect="/payments")
+        else:
+            raise Exception("Неправильная кнопка")
 
     async def next_btn_clk(self, data_btn: str):
         if data_btn == "/cancel":
@@ -64,6 +79,22 @@ class PaymentsState(UserState):
         elif data_btn == "/delete":
             await self.payments_controller.delete(id=self.current_payment.id)
             return Response(text="Способ оплаты удалено!", redirect="/payments")
+        elif data_btn == "/edit":
+            self.edit = "edit_name"
+            return Response(text="Введите следующим сообщением новое название оплаты: ", buttons=markups.generate_cancel_or_save())
+        elif data_btn == "/save":
+            if self.edit == "edit_name":
+                self.edit = "edit_description"
+                self.edit_name = self.current_payment.name
+                return Response(text="Введите следующим сообщением новое описание к оплате, инструкцию, реквизиты, и т.д.:\n"
+                                 "Чтобы выделить слова для копирования, поставьте в начале %% и в конце %%. ", buttons=markups.generate_cancel_or_save())
+            elif self.edit == "edit_description":
+                self.edit_description = self.current_payment.description
+                self.edit = "None"
+                self.current_payment.name = self.edit_name
+                self.current_payment.description = self.edit_description
+                await self.payments_controller.save(self.current_payment)
+                return Response(text="Способ оплаты изменен!", redirect="/payments")
         else:
             self.current_payment = (await self.payments_controller.get_by(id=int(data_btn)))[0]
             return Response(text=f"Название: {self.current_payment.name}\nОписание: {self.current_payment.description}", buttons=markups.generate_payment_menu())

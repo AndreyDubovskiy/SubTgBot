@@ -15,6 +15,7 @@ class UserState:
         pass
 
     async def next_msg(self, message: str):
+        raise Exception("Неправильная кнопка")
         pass
 
     async def next_msg_photo_and_video(self, message: types.Message):
