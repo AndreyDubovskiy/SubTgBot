@@ -28,10 +28,10 @@ class UserSubState(UserState):
         self.MAX_ON_PAGE = 7
         self.PAGE = 0
         self.IS_PAGE = False
-        self.len_subscriptions = len((await self.subscriptions_controller.get_all()))
+        self.len_subscriptions = len((await self.subscriptions_controller.get_by(user_id=self.user_bd_id)))
         if self.len_subscriptions > self.MAX_ON_PAGE:
             self.IS_PAGE = True
-        self.current_subscriptions = await self.subscriptions_controller.get_by(limit=self.MAX_ON_PAGE, offset=self.PAGE)
+        self.current_subscriptions = await self.subscriptions_controller.get_by(limit=self.MAX_ON_PAGE, offset=self.PAGE, user_id=self.user_bd_id)
         return Response(text=f"Список подписок. Всего {self.len_subscriptions} штук",
                         buttons=markups.generate_list_user_subs(arr=self.current_subscriptions, page=self.IS_PAGE),
                         is_end=False)
@@ -43,7 +43,7 @@ class UserSubState(UserState):
             return Response(redirect="/menu")
         elif data_btn == "/next":
             self.PAGE += self.MAX_ON_PAGE
-            tmp = await self.subscriptions_controller.get_by(limit=self.MAX_ON_PAGE, offset=self.PAGE)
+            tmp = await self.subscriptions_controller.get_by(limit=self.MAX_ON_PAGE, offset=self.PAGE, user_id=self.user_bd_id)
             if len(tmp) == 0:
                 self.PAGE -= self.MAX_ON_PAGE
             else:
@@ -58,7 +58,7 @@ class UserSubState(UserState):
                 return Response(text=f"Список подписок. Всего {self.len_subscriptions} штук",
                                 buttons=markups.generate_list_user_subs(arr=self.current_subscriptions, page=self.IS_PAGE),
                                 is_end=False)
-            tmp = await self.subscriptions_controller.get_by(limit=self.MAX_ON_PAGE, offset=self.PAGE)
+            tmp = await self.subscriptions_controller.get_by(limit=self.MAX_ON_PAGE, offset=self.PAGE, user_id=self.user_bd_id)
             self.current_subscriptions = tmp
             return Response(text=f"Список подписок. Всего {self.len_subscriptions} штук",
                             buttons=markups.generate_list_user_subs(arr=self.current_subscriptions, page=self.IS_PAGE),

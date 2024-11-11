@@ -41,7 +41,7 @@ class UserTarifsState(UserState):
         if self.len_tarifs > self.MAX_ON_PAGE:
             self.IS_PAGE = True
         self.current_tarifs = await self.tarifs_controller.get_by(limit=self.MAX_ON_PAGE, offset=self.PAGE)
-        return Response(text=f"Список тарифов",
+        return Response(text=f"Чтобы ознакомиться с тарифом, выберите необходимый, нажав на соответствующую кнопку",
                         buttons=markups.generate_list_payments(arr=self.current_tarifs, page=self.IS_PAGE, with_add=False),
                         is_end=False)
 
@@ -57,18 +57,18 @@ class UserTarifsState(UserState):
                 self.PAGE -= self.MAX_ON_PAGE
             else:
                 self.current_tarifs = tmp
-            return Response(text=f"Список тарифов", buttons=markups.generate_list_payments(arr=self.current_tarifs, page=self.IS_PAGE), is_end=False)
+            return Response(text=f"Чтобы ознакомиться с тарифом, выберите необходимый, нажав на соответствующую кнопку", buttons=markups.generate_list_payments(arr=self.current_tarifs, page=self.IS_PAGE), is_end=False)
         elif data_btn == "/back":
             self.PAGE -= self.MAX_ON_PAGE
             if self.PAGE < 0:
                 self.PAGE = 0
-                return Response(text=f"Список тарифов",
+                return Response(text=f"Чтобы ознакомиться с тарифом, выберите необходимый, нажав на соответствующую кнопку",
                                 buttons=markups.generate_list_payments(arr=self.current_tarifs, page=self.IS_PAGE),
                                 is_end=False)
             else:
                 tmp = await self.tarifs_controller.get_by(limit=self.MAX_ON_PAGE, offset=self.PAGE)
                 self.current_tarifs = tmp
-                return Response(text=f"Список тарифов",
+                return Response(text=f"Чтобы ознакомиться с тарифом, выберите необходимый, нажав на соответствующую кнопку",
                                 buttons=markups.generate_list_payments(arr=self.current_tarifs, page=self.IS_PAGE),
                                 is_end=False)
         elif data_btn == "/next" and self.edit == "buy_tarif":
@@ -95,10 +95,10 @@ class UserTarifsState(UserState):
                 if self.edit == "buy_tarif":
                     self.edit = "None"
                     self.current_payment = (await self.payments_controller.get_by(id=int(data_btn)))[0]
-                    return Response(text=f"Название: {self.current_payment.name}\nОписание: {self.current_payment.description}", buttons=markups.generate_markup_user_buy_or_cancel())
+                    return Response(text=f"{self.current_payment.description}", buttons=markups.generate_markup_user_buy_or_cancel())
                 else:
                     self.current_tarif = (await self.tarifs_controller.get_by(id=int(data_btn)))[0]
-                    return Response(text=f"Название: {self.current_tarif.name}\nОписание: {self.current_tarif.description}", buttons=markups.generate_markup_user_tarif())
+                    return Response(text=f"Название: *{self.current_tarif.name}*\n{self.current_tarif.description}", buttons=markups.generate_markup_user_tarif())
             except:
                 raise Exception("Неправильная кнопка")
 

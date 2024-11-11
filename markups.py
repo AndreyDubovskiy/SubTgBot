@@ -7,19 +7,19 @@ from typing import List
 def generate_yes_no():
     markup = types.InlineKeyboardMarkup(row_width=2)
     markup.add(types.InlineKeyboardButton(text="✅Да✅", callback_data="/yes"))
-    markup.add(types.InlineKeyboardButton(text="❌Отменить❌", callback_data="/cancel"))
+    markup.add(types.InlineKeyboardButton(text="Вернуться назад ↩️", callback_data="/cancel"))
     return markup
 
 def generate_ready_exit():
     markup = types.InlineKeyboardMarkup(row_width=2)
     markup.add(types.InlineKeyboardButton(text="✅Готово✅", callback_data="/yes_ready"))
-    markup.add(types.InlineKeyboardButton(text="❌Отменить❌", callback_data="/cancel"))
+    markup.add(types.InlineKeyboardButton(text="Вернуться назад ↩️", callback_data="/cancel"))
     return markup
 
 def generate_delete_cancel():
     markup = types.InlineKeyboardMarkup(row_width=2)
     markup.add(types.InlineKeyboardButton(text="🗑Удалить🗑", callback_data="/delete"))
-    markup.add(types.InlineKeyboardButton(text="❌Отменить❌", callback_data="/cancel"))
+    markup.add(types.InlineKeyboardButton(text="Вернуться назад ↩️", callback_data="/cancel"))
     return markup
 
 def generate_list_payments(arr, page = False, with_add = True):
@@ -31,7 +31,7 @@ def generate_list_payments(arr, page = False, with_add = True):
         markup.add(types.InlineKeyboardButton(text="⬅️", callback_data="/back"))
     if with_add:
         markup.add(types.InlineKeyboardButton(text="❇️Добавить❇️", callback_data="/add"))
-    markup.add(types.InlineKeyboardButton(text="❌Отменить❌", callback_data="/cancel"))
+    markup.add(types.InlineKeyboardButton(text="Вернуться назад ↩️", callback_data="/cancel"))
     return markup
 
 def generate_list_user_subs(arr, page = False):
@@ -41,12 +41,12 @@ def generate_list_user_subs(arr, page = False):
     if page:
         markup.add(types.InlineKeyboardButton(text="➡️️", callback_data="/next"))
         markup.add(types.InlineKeyboardButton(text="⬅️", callback_data="/back"))
-    markup.add(types.InlineKeyboardButton(text="❌Отменить❌", callback_data="/cancel"))
+    markup.add(types.InlineKeyboardButton(text="Вернуться назад ↩️", callback_data="/cancel"))
     return markup
 
 def generate_cancel():
     markup = types.InlineKeyboardMarkup(row_width=2)
-    markup.add(types.InlineKeyboardButton(text="❌Отменить❌", callback_data="/cancel"))
+    markup.add(types.InlineKeyboardButton(text="Вернуться назад ↩️", callback_data="/cancel"))
     return markup
 
 def generate_markup_menu():
@@ -89,7 +89,7 @@ def generate_markup_user_buy_or_cancel():
     markup = types.InlineKeyboardMarkup(row_width=2)
 
     markup.add(types.InlineKeyboardButton(text="✅Оплачено✅", callback_data="/ready"))
-    markup.add(types.InlineKeyboardButton(text="❌Отменить❌", callback_data="/cancel"))
+    markup.add(types.InlineKeyboardButton(text="Вернуться назад ↩️", callback_data="/cancel"))
 
     return markup
 
@@ -104,7 +104,7 @@ def generate_markup_user_tarif():
     markup = types.InlineKeyboardMarkup(row_width=2)
 
     markup.add(types.InlineKeyboardButton(text="❇️Купить❇️", callback_data="/buy"))
-    markup.add(types.InlineKeyboardButton(text="❌Отменить❌", callback_data="/cancel"))
+    markup.add(types.InlineKeyboardButton(text="Вернуться назад ↩️", callback_data="/cancel"))
 
     return markup
 
@@ -112,11 +112,11 @@ def generate_payment_menu():
     markup = types.InlineKeyboardMarkup(row_width=2)
     markup.add(types.InlineKeyboardButton(text="📝Редактировать📝", callback_data="/edit"))
     markup.add(types.InlineKeyboardButton(text="🗑Удалить🗑", callback_data="/delete"))
-    markup.add(types.InlineKeyboardButton(text="❌Отменить❌", callback_data="/cancel"))
+    markup.add(types.InlineKeyboardButton(text="Вернуться назад ↩️", callback_data="/cancel"))
     return markup
 
 def generate_cancel_or_save():
     markup = types.InlineKeyboardMarkup(row_width=2)
     markup.add(types.InlineKeyboardButton(text="📝Оставить как есть📝", callback_data="/save"))
-    markup.add(types.InlineKeyboardButton(text="❌Отменить❌", callback_data="/cancel"))
+    markup.add(types.InlineKeyboardButton(text="Вернуться назад ↩️", callback_data="/cancel"))
     return markup
